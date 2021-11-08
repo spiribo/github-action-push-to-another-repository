@@ -1,7 +1,7 @@
 #!/bin/sh -l
 
-set -e  # if a command fails it stops the execution
-set -u  # script fails if trying to access to an undefined variable
+set -e # if a command fails it stops the execution
+set -u # script fails if trying to access to an undefined variable
 
 echo "[+] Action start"
 SOURCE_BEFORE_DIRECTORY="$1"
@@ -16,13 +16,11 @@ TARGET_BRANCH="$9"
 COMMIT_MESSAGE="${10}"
 TARGET_DIRECTORY="${11}"
 
-if [ -z "$DESTINATION_REPOSITORY_USERNAME" ]
-then
+if [ -z "$DESTINATION_REPOSITORY_USERNAME" ]; then
 	DESTINATION_REPOSITORY_USERNAME="$DESTINATION_GITHUB_USERNAME"
 fi
 
-if [ -z "$USER_NAME" ]
-then
+if [ -z "$USER_NAME" ]; then
 	USER_NAME="$DESTINATION_GITHUB_USERNAME"
 fi
 
@@ -41,13 +39,11 @@ TEMP_DIR=$(mktemp -d)
 # including "." and with the exception of ".git/"
 mv "$CLONE_DIR/.git" "$TEMP_DIR/.git"
 
-if [ -n "$TARGET_DIRECTORY" ]
-then
+if [ -n "$TARGET_DIRECTORY" ]; then
 	echo "[+] Checking if $TARGET_DIRECTORY exist in git repo $DESTINATION_REPOSITORY_NAME"
 
 	# Remove contents of target directory and create a new empty one
-	if [ -d "$CLONE_DIR/$TARGET_DIRECTORY/" ]
-	then
+	if [ -d "$CLONE_DIR/$TARGET_DIRECTORY/" ]; then
 		echo "[+] Deleting files from $TARGET_DIRECTORY in git repo $DESTINATION_REPOSITORY_NAME"
 		rm -R "$CLONE_DIR/$TARGET_DIRECTORY/"
 	fi
@@ -67,8 +63,7 @@ echo "[+] List contents of $SOURCE_DIRECTORY"
 ls "$SOURCE_DIRECTORY"
 
 echo "[+] Checking if local $SOURCE_DIRECTORY exist"
-if [ ! -d "$SOURCE_DIRECTORY" ]
-then
+if [ ! -d "$SOURCE_DIRECTORY" ]; then
 	echo "ERROR: $SOURCE_DIRECTORY does not exist"
 	echo "This directory needs to exist when push-to-another-repository is executed"
 	echo
@@ -82,7 +77,9 @@ then
 fi
 
 echo "[+] Copying contents of source repository folder $SOURCE_DIRECTORY to folder $TARGET_DIRECTORY in git repo $DESTINATION_REPOSITORY_NAME"
-cp -ra "$SOURCE_DIRECTORY"/. "$CLONE_DIR/$TARGET_DIRECTORY"
+
+rsync -rv --delete --exclude=.git "$SOURCE_DIRECTORY"/. "$CLONE_DIR/$TARGET_DIRECTORY"
+
 cd "$CLONE_DIR"
 
 echo "[+] Files that will be pushed"
